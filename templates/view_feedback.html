@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Feedback - NeoLearn</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 20px;
+        }
+
+        /* Header */
+        .page-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #718096;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Back Button */
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-back:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            filter: brightness(1.1);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Content Card */
+        .content-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Table Styling */
+        .feedback-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .feedback-table thead {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .feedback-table th {
+            padding: 1.5rem 1rem;
+            font-weight: 700;
+            text-align: left;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+        }
+
+        .feedback-table td {
+            padding: 1.5rem 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            vertical-align: top;
+        }
+
+        .feedback-table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .feedback-table tbody tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+            transform: translateX(5px);
+        }
+
+        .feedback-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Student Name Styling */
+        .student-name {
+            font-weight: 600;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .student-name::before {
+            content: '👤';
+            font-size: 1.2rem;
+        }
+
+        /* Rating Stars */
+        .rating-stars {
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 0.2rem;
+        }
+
+        .star {
+            color: #ffd700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            animation: sparkle 2s ease-in-out infinite;
+        }
+
+        .star:nth-child(1) { animation-delay: 0.1s; }
+        .star:nth-child(2) { animation-delay: 0.2s; }
+        .star:nth-child(3) { animation-delay: 0.3s; }
+        .star:nth-child(4) { animation-delay: 0.4s; }
+        .star:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes sparkle {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Comment Styling */
+        .comment {
+            color: #4a5568;
+            font-style: italic;
+            max-width: 300px;
+            line-height: 1.6;
+        }
+
+        .comment.empty {
+            color: #a0aec0;
+            font-style: normal;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #718096;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+        }
+
+        .empty-message {
+            font-size: 1.1rem;
+        }
+
+        /* Floating Elements */
+        .floating-shape {
+            position: absolute;
+            opacity: 0.05;
+            pointer-events: none;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .floating-shape:nth-child(1) {
+            top: 10%;
+            right: 10%;
+            animation-delay: 0s;
+        }
+
+        .floating-shape:nth-child(2) {
+            bottom: 20%;
+            left: 5%;
+            animation-delay: 3s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(3deg); }
+        }
+
+        /* Stats Cards */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem 10px;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .feedback-table {
+                font-size: 0.9rem;
+            }
+
+            .feedback-table th,
+            .feedback-table td {
+                padding: 1rem 0.5rem;
+            }
+
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating Background Elements -->
+    <div class="floating-shape">
+        <svg width="100" height="100" viewBox="0 0 100 100" fill="none">
+            <circle cx="50" cy="50" r="40" fill="currentColor"/>
+        </svg>
+    </div>
+    <div class="floating-shape">
+        <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+            <rect x="20" y="20" width="80" height="80" fill="currentColor" rx="15"/>
+        </svg>
+    </div>
+
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">📋 Student Feedback</h1>
+            <p class="page-subtitle">Monitor and analyze student feedback to improve learning experiences</p>
+            <a href="/teacher" class="btn-back">
+                ⬅ Back to Dashboard
+            </a>
+        </div>
+
+        <!-- Content Card -->
+        <div class="content-card">
+            <!-- Sample Stats Row (you can populate this with real data) -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-value">4.2</div>
+                    <div class="stat-label">Average Rating</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">15</div>
+                    <div class="stat-label">Total Feedbacks</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">87%</div>
+                    <div class="stat-label">Satisfaction Rate</div>
+                </div>
+            </div>
+
+            <!-- Sample feedback data (replace with your Jinja2 template logic) -->
+            <!-- {% if feedbacks %} -->
+            <table class="feedback-table">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Rating</th>
+                        <th>Comment</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Sample data - replace with your template loop -->
+                    <tr>
+                        <td>
+                            <div class="student-name">Alice Johnson</div>
+                        </td>
+                        <td>
+                            <div class="rating-stars">
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="comment">The AI-powered learning experience was amazing! Really helped me understand complex topics.</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="student-name">Bob Smith</div>
+                        </td>
+                        <td>
+                            <div class="rating-stars">
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="comment">Great platform, but could use more interactive elements in some subjects.</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="student-name">Carol Davis</div>
+                        </td>
+                        <td>
+                            <div class="rating-stars">
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                                <span class="star">⭐</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="comment empty">—</div>
+                        </td>
+                    </tr>
+                    
+                    <!-- Your Jinja2 template loop would go here:
+                    {% for feedback in feedbacks %}
+                    <tr>
+                        <td>
+                            <div class="student-name">{{ feedback[0] }}</div>
+                        </td>
+                        <td>
+                            <div class="rating-stars">
+                                {% for i in range(feedback[1]) %}
+                                <span class="star">⭐</span>
+                                {% endfor %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="comment{% if not feedback[2] %} empty{% endif %}">
+                                {{ feedback[2] if feedback[2] else "—" }}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    -->
+                </tbody>
+            </table>
+            <!-- {% else %} -->
+            <!-- Uncomment this section for empty state:
+            <div class="empty-state">
+                <div class="empty-icon">📝</div>
+                <h3 class="empty-title">No Feedback Yet</h3>
+                <p class="empty-message">Student feedback will appear here once they start submitting their reviews.</p>
+            </div>
+            -->
+            <!-- {% endif %} -->
+        </div>
+    </div>
+
+    <script>
+        // Animate table rows on scroll
+        const observeElements = () => {
+            const rows = document.querySelectorAll('.feedback-table tbody tr');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry, index) => {
+                    if (entry.isIntersecting) {
+                        setTimeout(() => {
+                            entry.target.style.opacity = '1';
+                            entry.target.style.transform = 'translateX(0)';
+                        }, index * 100);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            rows.forEach(row => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(-30px)';
+                row.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(row);
+            });
+        };
+
+        // Animate stat cards
+        const animateStats = () => {
+            const cards = document.querySelectorAll('.stat-card');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach((entry, index) => {
+                    if (entry.isIntersecting) {
+                        setTimeout(() => {
+                            entry.target.style.opacity = '1';
+                            entry.target.style.transform = 'translateY(0)';
+                        }, index * 150);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            cards.forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(card);
+            });
+        };
+
+        // Initialize animations when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            observeElements();
+            animateStats();
+        });
+
+        // Add smooth hover effects for interactive elements
+        document.querySelectorAll('.feedback-table tbody tr').forEach(row => {
+            row.addEventListener('mouseenter', () => {
+                row.style.transform = 'translateX(5px)';
+            });
+            
+            row.addEventListener('mouseleave', () => {
+                row.style.transform = 'translateX(0)';
+            });
+        });
+    </script>
+</body>
+</html>

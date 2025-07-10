@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📋 Student Voting History - NeoLearn</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #718096;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .student-selector {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: white;
+            transition: all 0.3s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 1rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5rem;
+            padding-right: 3rem;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: scale(1.02);
+        }
+
+        .votes-section {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 1.5rem 2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .table {
+            width: 100%;
+            margin: 0;
+            border-collapse: collapse;
+        }
+
+        .table thead th {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            color: #4a5568;
+            font-weight: 700;
+            padding: 1.25rem 1.5rem;
+            text-align: left;
+            border: none;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody tr {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .table tbody tr:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05), rgba(118, 75, 162, 0.05));
+            transform: translateX(5px);
+        }
+
+        .table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .table tbody td {
+            padding: 1.25rem 1.5rem;
+            color: #4a5568;
+            font-weight: 500;
+            border: none;
+        }
+
+        .vote-title {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .vote-option {
+            color: #667eea;
+            font-weight: 600;
+            background: rgba(102, 126, 234, 0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .vote-time {
+            color: #718096;
+            font-size: 0.9rem;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .alert {
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+            box-shadow: 0 4px 15px rgba(66, 153, 225, 0.3);
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .back-button {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #718096;
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        /* Loading animation */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Floating decorations */
+        .floating-decoration {
+            position: absolute;
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .floating-decoration:nth-child(1) {
+            top: 15%;
+            right: 10%;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .floating-decoration:nth-child(2) {
+            bottom: 20%;
+            left: 15%;
+            animation: float 10s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        /* Stats cards */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 25px;
+            }
+
+            .page-title {
+                font-size: 2rem;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .student-selector {
+                padding: 1.5rem;
+            }
+
+            .table thead th,
+            .table tbody td {
+                padding: 1rem;
+                font-size: 0.9rem;
+            }
+
+            .vote-option {
+                font-size: 0.8rem;
+                padding: 0.2rem 0.5rem;
+            }
+
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Animation on load */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Enhanced table styling */
+        .table tbody tr:nth-child(even) {
+            background: rgba(102, 126, 234, 0.02);
+        }
+
+        .vote-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating decorations -->
+    <div class="floating-decoration">
+        <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+            <circle cx="60" cy="60" r="50" fill="currentColor"/>
+        </svg>
+    </div>
+    <div class="floating-decoration">
+        <svg width="100" height="100" viewBox="0 0 100 100" fill="none">
+            <rect x="25" y="25" width="50" height="50" fill="currentColor" rx="10"/>
+        </svg>
+    </div>
+
+    <div class="container fade-in">
+        <div class="page-header">
+            <h1 class="page-title">
+                <span>📋</span>
+                <span>Student Voting History</span>
+            </h1>
+            <p class="page-subtitle">Track and analyze student participation in voting activities</p>
+        </div>
+
+        <div class="student-selector">
+            <form method="POST" id="studentForm">
+                <label class="form-label">Select Student:</label>
+                <select name="student" class="form-select" onchange="showLoading(); this.form.submit()">
+                    <option value="">-- Select a student to view history --</option>
+                    {% for student in students %}
+                        <option value="{{ student }}" {% if student == selected_student %}selected{% endif %}>{{ student }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+
+            <div class="loading" id="loadingSpinner">
+                <div class="spinner"></div>
+                <p>Loading voting history...</p>
+            </div>
+        </div>
+
+        {% if selected_student and votes %}
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-number">{{ votes|length }}</div>
+                    <div class="stat-label">Total Votes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ selected_student }}</div>
+                    <div class="stat-label">Selected Student</div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if votes %}
+            <div class="votes-section">
+                <div class="table-header">
+                    <div class="vote-badge">
+                        <span>📊</span>
+                        <span>Voting History for {{ selected_student }}</span>
+                    </div>
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Vote Title</th>
+                            <th>Option Chosen</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for vote in votes %}
+                        <tr>
+                            <td>
+                                <div class="vote-title">{{ vote[0] }}</div>
+                            </td>
+                            <td>
+                                <span class="vote-option">{{ vote[1] }}</span>
+                            </td>
+                            <td>
+                                <div class="vote-time">{{ vote[2] }}</div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% elif selected_student %}
+            <div class="alert">
+                <span>ℹ️</span>
+                <span>This student hasn't participated in any voting activities yet.</span>
+            </div>
+            <div class="empty-state">
+                <div class="empty-state-icon">🗳️</div>
+                <div class="empty-state-text">No voting history found</div>
+            </div>
+        {% endif %}
+
+        <div class="back-button">
+            <a href="/admin" class="btn btn-secondary">
+                <span>⬅</span>
+                Back to Admin Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function showLoading() {
+            const form = document.getElementById('studentForm');
+            const loading = document.getElementById('loadingSpinner');
+            const select = form.querySelector('select');
+            
+            if (select.value) {
+                loading.style.display = 'block';
+                select.disabled = true;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate table rows on load
+            const tableRows = document.querySelectorAll('.table tbody tr');
+            tableRows.forEach((row, index) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(-20px)';
+                setTimeout(() => {
+                    row.style.transition = 'all 0.5s ease';
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateX(0)';
+                }, index * 100);
+            });
+
+            // Enhanced dropdown interaction
+            const dropdown = document.querySelector('.form-select');
+            if (dropdown) {
+                dropdown.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'scale(1.02)';
+                });
+                
+                dropdown.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'scale(1)';
+                });
+            }
+
+            // Animate stats cards
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+
+            // Add click effect to table rows
+            tableRows.forEach(row => {
+                row.addEventListener('click', function() {
+                    // Remove previous selections
+                    tableRows.forEach(r => r.classList.remove('selected'));
+                    // Add selection to clicked row
+                    this.classList.add('selected');
+                });
+            });
+        });
+
+        // Smooth page transitions
+        document.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (this.href && !this.href.includes('#')) {
+                    e.preventDefault();
+                    document.body.style.opacity = '0.8';
+                    setTimeout(() => {
+                        window.location.href = this.href;
+                    }, 200);
+                }
+            });
+        });
+
+        // Add some additional CSS for selected row
+        const style = document.createElement('style');
+        style.textContent = `
+            .table tbody tr.selected {
+                background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)) !important;
+                border-left: 4px solid #667eea;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: #2d3748;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* Floating Elements */
+    .container::before {
+      content: '';
+      position: absolute;
+      top: 10%;
+      left: 5%;
+      width: 100px;
+      height: 100px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      animation: float 6s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .container::after {
+      content: '';
+      position: absolute;
+      top: 60%;
+      right: 10%;
+      width: 80px;
+      height: 80px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      animation: float 6s ease-in-out infinite 2s;
+      pointer-events: none;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(5deg); }
+    }
+
+    /* Header */
+    h2 {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 2rem;
+      text-align: center;
+      color: white;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Flash Messages */
+    .alert {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(102, 126, 234, 0.2);
+      border-radius: 15px;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      color: #2d3748;
+      font-weight: 500;
+    }
+
+    /* Grid Layout */
+    .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .g-4 {
+      gap: 2rem;
+    }
+
+    /* Cards */
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 35px 70px rgba(0, 0, 0, 0.15);
+    }
+
+    .shadow {
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+    }
+
+    .border-0 {
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .card-header {
+      padding: 1.5rem 2rem 1rem;
+      font-weight: 700;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: none;
+    }
+
+    .bg-primary {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+
+    .bg-success {
+      background: linear-gradient(135deg, #48bb78, #38a169);
+      color: white;
+    }
+
+    .bg-warning {
+      background: linear-gradient(135deg, #ed8936, #dd6b20);
+      color: white;
+    }
+
+    .bg-dark {
+      background: linear-gradient(135deg, #2d3748, #1a202c);
+      color: white;
+    }
+
+    .bg-info {
+      background: linear-gradient(135deg, #4299e1, #3182ce);
+      color: white;
+    }
+
+    .text-white {
+      color: white;
+    }
+
+    .text-dark {
+      color: white;
+    }
+
+    .card-body {
+      padding: 2rem;
+    }
+
+    /* Form Elements */
+    .mb-2, .mb-3 {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #4a5568;
+    }
+
+    .form-control, .form-select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: white;
+    }
+
+    .form-control:focus, .form-select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #48bb78, #38a169);
+      color: white;
+    }
+
+    .btn-warning {
+      background: linear-gradient(135deg, #ed8936, #dd6b20);
+      color: white;
+    }
+
+    .btn-dark {
+      background: linear-gradient(135deg, #2d3748, #1a202c);
+      color: white;
+    }
+
+    .btn-info {
+      background: linear-gradient(135deg, #4299e1, #3182ce);
+      color: white;
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #e53e3e, #c53030);
+      color: white;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      filter: brightness(1.1);
+    }
+
+    .w-100 {
+      width: 100%;
+    }
+
+    /* Data Sections */
+    .mt-5, .mt-4 {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 2rem;
+      margin-top: 2rem;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    h4 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #2d3748;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Tables */
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+
+    .table th,
+    .table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .table th {
+      background: linear-gradient(135deg, #f7fafc, #edf2f7);
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .table-bordered {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .table-striped tbody tr:nth-child(even) {
+      background: rgba(102, 126, 234, 0.02);
+    }
+
+    .table tbody tr:hover {
+      background: rgba(102, 126, 234, 0.05);
+    }
+
+    /* Lists */
+    .list-group {
+      list-style: none;
+      padding: 0;
+    }
+
+    .list-group-item {
+      background: white;
+      border: 1px solid #e2e8f0;
+      padding: 1rem 1.5rem;
+      margin-bottom: 0.5rem;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .list-group-item:hover {
+      background: rgba(102, 126, 234, 0.05);
+      border-color: #667eea;
+    }
+
+    /* Utility Classes */
+    .text-end {
+      text-align: right;
+    }
+
+    /* Column classes for special sections */
+    .col-md-6 {
+      display: block;
+    }
+
+    .col-lg-3, .col-lg-4 {
+      display: block;
+    }
+
+    /* Student Voting History Card */
+    .card .card-header.bg-info + .card-body {
+      text-align: center;
+    }
+
+    .card .card-header.bg-info + .card-body .btn {
+      margin-top: 1rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+
+      .row {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+
+      h2 {
+        font-size: 2rem;
+      }
+
+      .card-body {
+        padding: 1.5rem;
+      }
+
+      .mt-5, .mt-4 {
+        padding: 1.5rem;
+      }
+
+      .table {
+        font-size: 0.9rem;
+      }
+
+      .table th,
+      .table td {
+        padding: 0.75rem;
+      }
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="p-4">
+  <div class="container">
+    <h2 class="mb-4">🛠️ Admin Dashboard</h2>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-info">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="row g-4">
+      <!-- Register New User -->
+      <div class="col-md-6 col-lg-3">
+        <div class="card shadow border-0">
+          <div class="card-header bg-primary text-white">➕ Register User</div>
+          <div class="card-body">
+            <form method="POST" action="{{ url_for('admin_register') }}">
+              <div class="mb-2">
+                <label class="form-label">Username:</label>
+                <input type="text" name="username" class="form-control" required>
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Password:</label>
+                <input type="password" name="password" class="form-control" required>
+              </div>
+              <div class="mb-2">
+  <label class="form-label">Role:</label>
+  <select name="role" class="form-select" id="roleSelect" required>
+    <option value="teacher">👨‍🏫 Teacher</option>
+    <option value="student">👨‍🎓 Student</option>
+  </select>
+</div>
+
+<div class="mb-2" id="standardField" style="display:none;">
+  <label class="form-label">Standard:</label>
+  <input type="text" name="standard" class="form-control">
+</div>
+
+              <button type="submit" class="btn btn-primary w-100">Register</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Send Message -->
+      <div class="col-md-6 col-lg-3">
+        <div class="card shadow border-0">
+          <div class="card-header bg-success text-white">📩 Send Message</div>
+          <div class="card-body">
+            <form method="POST" action="{{ url_for('admin_message') }}">
+              <div class="mb-2">
+                <textarea name="message" class="form-control" placeholder="Enter message" rows="3" required></textarea>
+              </div>
+              <div class="mb-2">
+                <select name="to" class="form-select" required>
+                  <option value="teacher">👩‍🏫 Teachers</option>
+                  <option value="student">👨‍🎓 Students</option>
+                  <option value="all">👥 Both</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-success w-100">Send</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Classic Voting -->
+      <div class="col-md-6 col-lg-3">
+        <div class="card shadow border-0">
+          <div class="card-header bg-warning text-dark">🗳️ Vote for Best Teacher</div>
+          <div class="card-body">
+            <form method="POST" action="{{ url_for('create_vote') }}">
+              <input type="hidden" name="title" value="Best Teacher Vote">
+              <div class="mb-3">
+                <label class="form-label">Select Teacher:</label>
+                <select name="options" class="form-select" required>
+                  <option value="">-- Choose --</option>
+                  {% for t in teachers %}
+                    <option value="{{ t }}">{{ t }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <button type="submit" class="btn btn-warning w-100">Start Vote</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Custom Voting -->
+      <div class="col-md-6 col-lg-3">
+        <div class="card shadow border-0">
+          <div class="card-header bg-dark text-white">📝 Custom Voting</div>
+          <div class="card-body">
+            <form method="POST" action="{{ url_for('create_vote') }}">
+              <div class="mb-2">
+                <label class="form-label">Vote Title:</label>
+                <input type="text" name="title" class="form-control" placeholder="e.g. Who is best?" required>
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Options (comma separated):</label>
+                <input type="text" name="options" class="form-control" placeholder="e.g. Parth, khushi, mahira" required>
+              </div>
+              <button type="submit" class="btn btn-dark w-100">Start Custom Vote</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Student Voting History -->
+      <div class="col-md-6 col-lg-4">
+        <div class="card shadow border-0">
+          <div class="card-header bg-info text-white">📋 View Student Voting History</div>
+          <div class="card-body text-center">
+            <a href="{{ url_for('view_student_votes') }}" class="btn btn-info w-100">View History</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Messages List -->
+    <div class="mt-5">
+      <h4>📨 Messages</h4>
+      <ul class="list-group">
+        {% for m in messages %}
+          <li class="list-group-item"><strong>To {{ m[2]|capitalize }}:</strong> {{ m[1] }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Voting Results -->
+    <div class="mt-4">
+      <h4>📊 Voting Results</h4>
+      <table class="table table-bordered table-striped">
+        <thead>
+          <tr><th>Topic</th><th>Option</th><th>Votes</th></tr>
+        </thead>
+        <tbody>
+          {% for v in votes %}
+          <tr>
+            <td>{{ v[1] }}</td>  <!-- title -->
+            <td>{{ v[2] }}</td>  <!-- option_text -->
+            <td>{{ v[3] }}</td>  <!-- votes -->
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Delete Vote Section -->
+    <div class="mt-5">
+      <h4>🗑️ Delete Vote</h4>
+      <form action="{{ url_for('delete_vote') }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this vote?');">
+        <div class="mb-3">
+          <label class="form-label">Select Vote Title:</label>
+          <select name="title" class="form-select" required>
+            <option value="">-- Choose Vote Title --</option>
+            {% for v in votes %}
+              <option value="{{ v[1] }}">{{ v[1] }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="btn btn-danger">Delete Vote</button>
+      </form>
+    </div>
+
+    <div class="text-end mt-4">
+      <a href="/logout" class="btn btn-danger">Logout</a>
+    </div>
+
+  </div>
+  <script>
+document.getElementById('roleSelect').addEventListener('change', function() {
+  const selectedRole = this.value;
+  const standardField = document.getElementById('standardField');
+
+  if (selectedRole === 'student') {
+    standardField.style.display = 'block';
+  } else {
+    standardField.style.display = 'none';
+  }
+});
+</script>
+
+</body>
+</html>

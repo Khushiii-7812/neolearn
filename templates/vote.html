@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🗳️ Vote - NeoLearn</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: white;
+            transition: all 0.3s ease;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 1rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5rem;
+            padding-right: 3rem;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .alert {
+            padding: 1.25rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            border: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+            color: white;
+            box-shadow: 0 4px 15px rgba(237, 137, 54, 0.3);
+        }
+
+        .alert-info {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+            box-shadow: 0 4px 15px rgba(66, 153, 225, 0.3);
+        }
+
+        .vote-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .vote-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .form-check {
+            margin-bottom: 1.25rem;
+            padding: 1rem;
+            border-radius: 10px;
+            background: #f8fafc;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .form-check:hover {
+            background: #edf2f7;
+            border-color: rgba(102, 126, 234, 0.2);
+            transform: translateX(5px);
+        }
+
+        .form-check-input {
+            margin-right: 1rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            accent-color: #667eea;
+            cursor: pointer;
+        }
+
+        .form-check-label {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #4a5568;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .form-check {
+            display: flex;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            border: 2px solid transparent;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(72, 187, 120, 0.4);
+            filter: brightness(1.1);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .back-button {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        /* Loading animation for form submission */
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Floating decoration elements */
+        .floating-decoration {
+            position: absolute;
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .floating-decoration:nth-child(1) {
+            top: 10%;
+            right: 10%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .floating-decoration:nth-child(2) {
+            bottom: 15%;
+            left: 15%;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(3deg); }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 25px;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .vote-section {
+                padding: 1.5rem;
+            }
+
+            .form-check {
+                padding: 0.75rem;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Enhanced form interactions */
+        .form-check input[type="radio"]:checked + .form-check-label {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .form-check:has(input[type="radio"]:checked) {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+            border-color: #667eea;
+        }
+
+        /* Success animation */
+        @keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .alert-success {
+            animation: successPulse 2s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating decorations -->
+    <div class="floating-decoration">
+        <svg width="100" height="100" viewBox="0 0 100 100" fill="none">
+            <circle cx="50" cy="50" r="40" fill="currentColor"/>
+        </svg>
+    </div>
+    <div class="floating-decoration">
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+            <rect x="20" y="20" width="40" height="40" fill="currentColor" rx="8"/>
+        </svg>
+    </div>
+
+    <div class="container">
+        <h1 class="page-title">
+            <span>🗳️</span>
+            Cast Your Vote
+        </h1>
+
+        <!-- Vote Title Dropdown -->
+        <form method="GET" action="{{ url_for('vote') }}" id="titleForm">
+            <div class="form-group">
+                <label class="form-label">Select Vote Title:</label>
+                <select name="title" class="form-select" onchange="this.form.submit()">
+                    <option value="">-- Choose a voting topic --</option>
+                    {% for t in titles %}
+                        <option value="{{ t }}" {% if t == selected_title %}selected{% endif %}>{{ t }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+
+        <!-- Alert: Already Voted -->
+        {% if voted %}
+            <div class="alert alert-success">
+                <span>✅</span>
+                <span>You have already voted for "<strong>{{ selected_title }}</strong>"</span>
+            </div>
+        {% endif %}
+
+        <!-- Alert: No Options Found -->
+        {% if selected_title and not options and not voted %}
+            <div class="alert alert-warning">
+                <span>⚠️</span>
+                <span>No options found for this vote title.</span>
+            </div>
+        {% endif %}
+
+        <!-- Voting Form -->
+        {% if selected_title and options and not voted %}
+            <div class="vote-section">
+                <h2 class="vote-title">{{ selected_title }}</h2>
+                
+                <form method="POST" action="{{ url_for('vote') }}" id="voteForm">
+                    <input type="hidden" name="title" value="{{ selected_title }}">
+                    
+                    {% for id, opt in options %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="option_id" value="{{ id }}" id="option{{ id }}" required>
+                            <label class="form-check-label" for="option{{ id }}">{{ opt }}</label>
+                        </div>
+                    {% endfor %}
+
+                    <button type="submit" class="btn btn-success">
+                        <span>✅</span>
+                        Submit Vote
+                    </button>
+                </form>
+
+                <div class="loading" id="loadingSpinner">
+                    <div class="spinner"></div>
+                    <p>Submitting your vote...</p>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- General Flash Message -->
+        {% if message %}
+            <div class="alert alert-info">
+                <span>ℹ️</span>
+                <span>{{ message }}</span>
+            </div>
+        {% endif %}
+
+        <div class="back-button">
+            <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary">
+                <span>⬅</span>
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced form interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add smooth scrolling
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.opacity = '0';
+                alert.style.transform = 'translateY(-20px)';
+                setTimeout(() => {
+                    alert.style.transition = 'all 0.5s ease';
+                    alert.style.opacity = '1';
+                    alert.style.transform = 'translateY(0)';
+                }, 100);
+            });
+
+            // Form submission loading state
+            const voteForm = document.getElementById('voteForm');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            
+            if (voteForm) {
+                voteForm.addEventListener('submit', function(e) {
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    submitBtn.style.display = 'none';
+                    loadingSpinner.style.display = 'block';
+                });
+            }
+
+            // Radio button interactions
+            const radioButtons = document.querySelectorAll('input[type="radio"]');
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    // Remove previous selections styling
+                    document.querySelectorAll('.form-check').forEach(check => {
+                        check.style.transform = 'translateX(0)';
+                    });
+                    
+                    // Highlight selected option
+                    this.closest('.form-check').style.transform = 'translateX(10px)';
+                });
+            });
+
+            // Dropdown animation
+            const dropdown = document.querySelector('.form-select');
+            if (dropdown) {
+                dropdown.addEventListener('focus', function() {
+                    this.style.transform = 'scale(1.02)';
+                });
+                
+                dropdown.addEventListener('blur', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            }
+
+            // Add hover effects to form checks
+            const formChecks = document.querySelectorAll('.form-check');
+            formChecks.forEach(check => {
+                check.addEventListener('mouseenter', function() {
+                    if (!this.querySelector('input').checked) {
+                        this.style.background = '#edf2f7';
+                    }
+                });
+                
+                check.addEventListener('mouseleave', function() {
+                    if (!this.querySelector('input').checked) {
+                        this.style.background = '#f8fafc';
+                    }
+                });
+            });
+        });
+
+        // Smooth page transitions
+        document.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                if (this.href && !this.href.includes('#')) {
+                    e.preventDefault();
+                    document.body.style.opacity = '0.8';
+                    setTimeout(() => {
+                        window.location.href = this.href;
+                    }, 200);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
